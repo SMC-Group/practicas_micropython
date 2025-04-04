@@ -6,17 +6,18 @@ from pybricks.ev3devices import ColorSensor
 from pybricks.tools import wait
 
 class LineFollowers:
-    def __init__(self, robot: Robot, color_sensor: ColorSensor, threshold: float, second_color_sensor: ColorSensor = None, black_value: float = None) -> None:
+    def __init__(self, robot: Robot, color_sensor: ColorSensor, threshold: float, second_color_sensor: ColorSensor = None, until_pid_value: float = None) -> None:
         self.robot = robot
         self.color_sensor = color_sensor
         self.second_color_sensor = second_color_sensor or None
         self.threshold = threshold
-        self.black_value = black_value
+        self.until_pid_value = until_pid_value
     def follow_line_by_pid_forever(self, speed: float, Kp: float, Ki: float, Kd: float):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
         color_sensor = self.get_color_sensor()
         threshold = self.get_threshold()
+        max_speed = robot.get_max_speed()
 
         integral = 0
         derivative = 0
@@ -28,7 +29,7 @@ class LineFollowers:
             derivative = error - last_error
 
             turn_rate = Kp * error + Ki * integral + Kd * derivative
-            drive_base.drive(speed, turn_rate)
+            drive_base.drive(max_speed * (speed / 100), turn_rate)
             last_error = error
             wait(10)
     def follow_line_by_pid(self, speed: float, Kp: float, Ki: float, Kd: float, distance: float):
@@ -38,6 +39,7 @@ class LineFollowers:
         right_motor = robot.get_right_motor()
         color_sensor = self.get_color_sensor()
         threshold = self.get_threshold()
+        max_speed = robot.get_max_speed()
 
         integral = 0
         derivative = 0
@@ -49,7 +51,7 @@ class LineFollowers:
             derivative = error - last_error
 
             turn_rate = Kp * error + Ki * integral + Kd * derivative
-            drive_base.drive(speed, turn_rate)
+            drive_base.drive(max_speed * (speed / 100), turn_rate)
             last_error = error
             wait(10)
         drive_base.stop()
@@ -62,24 +64,25 @@ class LineFollowers:
         left_motor = robot.get_left_motor()
         right_motor = robot.get_right_motor()
         second_color_sensor = self.get_second_color_sensor()
-        black_value = self.get_black_value()
+        until_pid_value = self.get_until_pid_value()
+        max_speed = robot.get_max_speed()
         if not second_color_sensor:
             raise ValueError("Second color sensor is not defined")
-        if not black_value:
-            raise ValueError("Black value is not defined")
+        if not until_pid_value:
+            raise ValueError("Until PID value is not defined")
         threshold = self.get_threshold()
 
         integral = 0
         derivative = 0
         last_error = 0
         drive_base.reset()
-        while second_color_sensor.reflection() >= black_value:
+        while second_color_sensor.reflection() > until_pid_value:
             error = color_sensor.reflection() - threshold
             integral = integral + error
             derivative = error - last_error
 
             turn_rate = Kp * error + Ki * integral + Kd * derivative
-            drive_base.drive(speed, turn_rate)
+            drive_base.drive(max_speed * (speed / 100), turn_rate)
             last_error = error
             wait(10)
         drive_base.stop()
@@ -93,5 +96,5 @@ class LineFollowers:
         return self.second_color_sensor
     def get_threshold(self) -> float:
         return self.threshold
-    def get_black_value(self) -> float:
-        return self.black_value
+    def get_until_pid_value(self) -> float:
+        return self.until_pid_value
