@@ -76,7 +76,17 @@ class LineFollowers:
         derivative = 0
         last_error = 0
         drive_base.reset()
-        while second_color_sensor.reflection() > until_pid_value:
+        # Log values before the loop
+        reflection_value = second_color_sensor.reflection()
+        comparison_result = reflection_value > until_pid_value
+        with open('logs.txt', 'a') as f:
+            # Use str.format() for MicroPython compatibility
+            f.write("Reflection: {}, Threshold: {}, Condition: {}\n".format(reflection_value, until_pid_value, comparison_result))
+        print(reflection_value, until_pid_value, comparison_result)
+        while reflection_value > until_pid_value:
+            # Log entry into the loop
+            with open('logs_2.txt', 'a') as f:
+                f.write("Entered while loop\n")
             error = color_sensor.reflection() - threshold
             integral = integral + error
             derivative = error - last_error
@@ -85,6 +95,8 @@ class LineFollowers:
             drive_base.drive(max_speed * (speed / 100), turn_rate)
             last_error = error
             wait(10)
+            # Update reflection value for the next iteration check
+            reflection_value = second_color_sensor.reflection()
         drive_base.stop()
         left_motor.brake()
         right_motor.brake()

@@ -1,5 +1,6 @@
 // Place your settings in this file to overwrite default and user settings.
 {
 	"files.eol": "\n",
-	"debug.openDebug": "neverOpen"
+	"debug.openDebug": "neverOpen",
+	"CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
