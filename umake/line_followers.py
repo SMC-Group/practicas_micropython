@@ -12,6 +12,7 @@ class LineFollowers:
         self.second_color_sensor = second_color_sensor or None
         self.threshold = threshold
         self.until_pid_value = until_pid_value
+
     def follow_line_by_pid_forever(self, speed: float, Kp: float, Ki: float, Kd: float):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
@@ -19,19 +20,19 @@ class LineFollowers:
         threshold = self.get_threshold()
         max_speed = robot.get_max_speed()
 
-        integral = 0
-        derivative = 0
-        last_error = 0
+        integral = 0.0
+        last_error = 0.0
         drive_base.reset()
         while True:
-            error = color_sensor.reflection() - threshold
-            integral = integral + error
+            reflection = color_sensor.reflection()
+            error = float(reflection) - float(threshold)
+            integral += error
             derivative = error - last_error
-
-            turn_rate = Kp * error + Ki * integral + Kd * derivative
-            drive_base.drive(max_speed * (speed / 100), turn_rate)
+            turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
+            drive_base.drive(max_speed * (speed / 100.0), turn_rate)
             last_error = error
             wait(10)
+
     def follow_line_by_pid(self, speed: float, Kp: float, Ki: float, Kd: float, distance: float):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
@@ -41,22 +42,22 @@ class LineFollowers:
         threshold = self.get_threshold()
         max_speed = robot.get_max_speed()
 
-        integral = 0
-        derivative = 0
-        last_error = 0
+        integral = 0.0
+        last_error = 0.0
         drive_base.reset()
         while drive_base.distance() <= (distance * 10):
-            error = color_sensor.reflection() - threshold
-            integral = integral + error
+            reflection = color_sensor.reflection()
+            error = float(reflection) - float(threshold)
+            integral += error
             derivative = error - last_error
-
-            turn_rate = Kp * error + Ki * integral + Kd * derivative
-            drive_base.drive(max_speed * (speed / 100), turn_rate)
+            turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
+            drive_base.drive(max_speed * (speed / 100.0), turn_rate)
             last_error = error
             wait(10)
         drive_base.stop()
         left_motor.brake()
         right_motor.brake()
+
     def follow_line_by_pid_until_black(self, speed: float, Kp: float, Ki: float, Kd: float):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
@@ -72,41 +73,54 @@ class LineFollowers:
             raise ValueError("Until PID value is not defined")
         threshold = self.get_threshold()
 
-        integral = 0
-        derivative = 0
-        last_error = 0
+        integral = 0.0
+        last_error = 0.0
         drive_base.reset()
-        # Log values before the loop
         reflection_value = second_color_sensor.reflection()
-        comparison_result = reflection_value > until_pid_value
-        with open('logs.txt', 'a') as f:
-            # Use str.format() for MicroPython compatibility
-            f.write("Reflection: {}, Threshold: {}, Condition: {}\n".format(reflection_value, until_pid_value, comparison_result))
-        print(reflection_value, until_pid_value, comparison_result)
         while reflection_value > until_pid_value:
-            # Log entry into the loop
-            with open('logs_2.txt', 'a') as f:
-                f.write("Entered while loop\n")
-            error = color_sensor.reflection() - threshold
-            integral = integral + error
+            error = float(color_sensor.reflection()) - float(threshold)
+            integral += error
             derivative = error - last_error
-
-            turn_rate = Kp * error + Ki * integral + Kd * derivative
-            drive_base.drive(max_speed * (speed / 100), turn_rate)
+            turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
+            drive_base.drive(max_speed * (speed / 100.0), turn_rate)
             last_error = error
             wait(10)
-            # Update reflection value for the next iteration check
             reflection_value = second_color_sensor.reflection()
         drive_base.stop()
         left_motor.brake()
         right_motor.brake()
+
+    def follow_p(self, speed: float, Kp: float, distance: float):
+        """Follows a line using a proportional controller for a specific distance."""
+        robot = self.get_robot()
+        drive_base = robot.get_drive_base()
+        left_motor = robot.get_left_motor()
+        right_motor = robot.get_right_motor()
+        color_sensor = self.get_color_sensor()
+        threshold = self.get_threshold()
+        max_speed = robot.get_max_speed()
+
+        drive_base.reset()
+        while drive_base.distance() <= (distance * 10):
+            error = color_sensor.reflection() - threshold
+            turn_rate = Kp * error
+            drive_base.drive(max_speed * (speed / 100), turn_rate)
+            wait(10)
+        drive_base.stop()
+        left_motor.brake()
+        right_motor.brake()
+
     def get_robot(self) -> Robot:
         return self.robot
+
     def get_color_sensor(self) -> ColorSensor:
         return self.color_sensor
+
     def get_second_color_sensor(self) -> ColorSensor:
         return self.second_color_sensor
+
     def get_threshold(self) -> float:
         return self.threshold
+
     def get_until_pid_value(self) -> float:
         return self.until_pid_value
