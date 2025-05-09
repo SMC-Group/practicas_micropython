@@ -7,4 +7,4 @@ left_motor = Motor(Port.A)
 right_motor = Motor(Port.D, Direction.COUNTERCLOCKWISE)
 robot = Robot(left_motor, right_motor, 62, 175)
 
-robot.turn(90, 50)
+robot.rotate(90, 50)

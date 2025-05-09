@@ -1,7 +1,6 @@
 from pybricks.ev3devices import Motor
 from pybricks.robotics import DriveBase
-from pybricks.parameters import Stop
-from pybricks.tools import wait
+# TODO: Hacer método turn()
 
 class Robot:
     def __init__(self, left_motor: Motor, right_motor: Motor, wheel_diameter: float, axle_track: float, degrees_error: float = 0) -> None:
@@ -12,7 +11,7 @@ class Robot:
         self.axle_track = axle_track
         self.wheel_diameter = wheel_diameter
         self.degrees_error = degrees_error
-    def turn(self, angle: float, speed: float = None, acceleration: float = None) -> None:
+    def rotate(self, angle: float, speed: float = None, acceleration: float = None) -> None:
         drive_base = self.get_drive_base()
         left_motor = self.get_left_motor()
         right_motor = self.get_right_motor()
@@ -32,63 +31,17 @@ class Robot:
             turn_rate=old[2],
             turn_acceleration=old[3]
         )
-    def rotate(self, degrees: float, speed: float) -> None:
-        left_motor = self.get_left_motor()
-        right_motor = self.get_right_motor()
-        axle_track = self.get_axle_track()
-        wheel_diameter = self.get_wheel_diameter()
-        max_speed = self.get_max_speed()
-
-        # Calcular distancia que debe recorrer cada rueda
-        rotation_circumference = 3.1416 * axle_track
-        distance_per_wheel = (rotation_circumference * degrees) / 360
-
-        # Convertir a grados del motor
-        wheel_circumference = 3.1416 * wheel_diameter
-        degrees_motor = (distance_per_wheel / wheel_circumference) * 360
-
-        # Mover los motores en direcciones opuestas
-        left_motor.run_angle((max_speed * (speed / 100)), degrees_motor, then=Stop.HOLD, wait=False)
-        right_motor.run_angle(-(max_speed * (speed / 100)), degrees_motor, then=Stop.HOLD, wait=True)
-    def rotate_pid(self, target_angle_deg: float, Kp: float, Ki: float, Kd: float, base_speed=100):
+    def turn(self, degrees: float, speed: float) -> None:
         left_motor = self.get_left_motor()
         right_motor = self.get_right_motor()
         max_speed = self.get_max_speed()
-        integral = 0
-        last_error = 0
 
-        left_motor.reset_angle(0)
-        right_motor.reset_angle(0)
-
-        # Loop de control
-        while True:
-            # Obtener la rotación promedio (porque giran en direcciones opuestas)
-            left_deg = left_motor.angle()
-            right_deg = right_motor.angle()
-            current_rotation = (left_deg - right_deg) / 2
-
-            # Calcular error
-            error = target_angle_deg - current_rotation
-            integral += error
-            derivative = error - last_error
-
-            # PID
-            correction = Kp * error + Ki * integral + Kd * derivative
-
-            # Aplicar corrección (uno hacia adelante, otro hacia atrás)
-            left_motor.dc((max_speed * (base_speed / 100)) + correction)
-            right_motor.dc(-(max_speed * (base_speed / 100)) - correction)
-
-            # Actualizar último error
-            last_error = error
-
-            # Condición de parada
-            if abs(error) < 1:  # margen de 1 grado
-                break
-            wait(10)
-        # Detener motores al finalizar
-        left_motor.stop(Stop.HOLD)
-        right_motor.stop(Stop.HOLD)
+        if degrees > 0:
+            left_motor.run_angle((max_speed * (speed / 100)) * -1, degrees)
+            left_motor.brake()
+        else:
+            right_motor.run_angle((max_speed * (speed / 100)) * -1, degrees)
+            right_motor.brake()
     def run_cm(self, speed: float, distance: float, straight_acceleration: float = None):
         drive_base = self.get_drive_base()
         left_motor = self.get_left_motor()

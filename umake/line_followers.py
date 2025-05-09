@@ -5,6 +5,9 @@ from umake_robot import Robot
 from pybricks.ev3devices import ColorSensor
 from pybricks.tools import wait
 
+LineSideRight = 0
+LineSideLeft = 1
+
 class LineFollowers:
     def __init__(self, robot: Robot, color_sensor: ColorSensor, threshold: float, second_color_sensor: ColorSensor = None, until_pid_value: float = None) -> None:
         self.robot = robot
@@ -33,7 +36,7 @@ class LineFollowers:
             last_error = error
             wait(10)
 
-    def follow_line_by_pid(self, speed: float, Kp: float, Ki: float, Kd: float, distance: float):
+    def follow_line_by_pid(self, speed: float, Kp: float, Ki: float, Kd: float, distance: float, line_side: int = LineSideRight):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
         left_motor = robot.get_left_motor()
@@ -47,7 +50,13 @@ class LineFollowers:
         drive_base.reset()
         while drive_base.distance() <= (distance * 10):
             reflection = color_sensor.reflection()
-            error = float(reflection) - float(threshold)
+            error = 0
+            if line_side == LineSideRight:
+                error = float(reflection) - float(threshold)
+            elif line_side == LineSideLeft:
+                error = float(threshold) - float(reflection)
+            else:
+                raise ValueError("line_side param is not valid")
             integral += error
             derivative = error - last_error
             turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
