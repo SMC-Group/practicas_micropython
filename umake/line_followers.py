@@ -8,6 +8,7 @@ from pybricks.tools import wait
 LineSideRight = 0
 LineSideLeft = 1
 
+
 class LineFollowers:
     def __init__(self, robot: Robot, color_sensor: ColorSensor, threshold: float, second_color_sensor: ColorSensor = None, until_pid_value: float = None) -> None:
         self.robot = robot
@@ -15,7 +16,13 @@ class LineFollowers:
         self.second_color_sensor = second_color_sensor or None
         self.threshold = threshold
         self.until_pid_value = until_pid_value
-
+    # TODO: implementar esto dentro del método en sí
+    def __pid__controller__(self, target: float, current: float, Kp: float, Ki: float, Kd: float, integral_sum: float) -> float:
+        internal_ki = Ki
+        error_b = target - current
+        internal_ki = (Ki * integral_sum) + error_b
+        last_error = error_b - last_error
+        
     def follow_line_by_pid_forever(self, speed: float, Kp: float, Ki: float, Kd: float):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
@@ -67,7 +74,7 @@ class LineFollowers:
         left_motor.brake()
         right_motor.brake()
 
-    def follow_line_by_pid_until_black(self, speed: float, Kp: float, Ki: float, Kd: float):
+    def follow_line_by_pid_until_black(self, speed: float, Kp: float, Ki: float, Kd: float, line_side: int = LineSideRight):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
         color_sensor = self.get_color_sensor()
@@ -87,7 +94,14 @@ class LineFollowers:
         drive_base.reset()
         reflection_value = second_color_sensor.reflection()
         while reflection_value > until_pid_value:
-            error = float(color_sensor.reflection()) - float(threshold)
+            reflection = color_sensor.reflection()
+            error = 0
+            if line_side == LineSideRight:
+                error = float(reflection) - float(threshold)
+            elif line_side == LineSideLeft:
+                error = float(threshold) - float(reflection)
+            else:
+                raise ValueError("line_side param is not valid")
             integral += error
             derivative = error - last_error
             turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
