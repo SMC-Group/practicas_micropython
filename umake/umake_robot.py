@@ -1,5 +1,6 @@
 from pybricks.ev3devices import Motor
 from pybricks.robotics import DriveBase
+from pybricks.tools import wait
 # TODO: Hacer método turn()
 
 TurnLeft = 0
@@ -99,6 +100,20 @@ class Robot:
             straight_speed=old[0],
             straight_acceleration=old[1]
         )
+    def run_by_seconds(self, speed: float, seconds: float, angle: float = 0):
+        drive_base = self.get_drive_base()
+        left_motor = self.get_left_motor()
+        right_motor = self.get_right_motor()
+        drive_base.drive(self.get_max_speed() * (speed / 100), angle)
+        wait(seconds * 1000)
+        drive_base.stop()
+        left_motor.brake()
+        right_motor.brake()
+    def reset_motors(self):
+        left_motor = self.get_left_motor()
+        right_motor = self.get_right_motor()
+        left_motor.reset_angle(0)
+        right_motor.reset_angle(0)
     def get_drive_base(self) -> DriveBase:
         return self.drive_base
     def get_left_motor(self) -> Motor:
