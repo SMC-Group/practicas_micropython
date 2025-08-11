@@ -1,4 +1,4 @@
-from pybricks.ev3devices import Motor
+from pybricks.ev3devices import ColorSensor, Motor
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait
 # TODO: Hacer método turn()
@@ -43,7 +43,7 @@ class Robot:
         axle_track = self.get_axle_track()
         wheel_diameter = self.get_wheel_diameter()
         
-        if single_motor:
+        if single_motor != None:
             # Giro con un solo motor (el otro permanece estático)
             # El ángulo de giro es el doble porque solo un motor se mueve
             motor_angle = (degrees * axle_track * 2) / wheel_diameter
