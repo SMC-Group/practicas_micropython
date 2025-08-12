@@ -39,6 +39,8 @@ def banderas():
     robot.run_cm(80, 40)
     robot.rotate(142, 80)
     robot.run_by_seconds(-80, 2)
+
+def AB():
     robot.run_cm(80, 15)
     robot.turn(92, 80, TurnLeft)
     medium_motor.safely_run_angle(-80, 120)
@@ -51,3 +53,4 @@ def banderas():
     robot.run_cm(80, 12.5)
 
 banderas()
+AB()
