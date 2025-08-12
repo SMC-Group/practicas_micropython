@@ -113,6 +113,32 @@ class LineFollowers:
         left_motor.brake()
         right_motor.brake()
 
+    # TODO: método no finalizado
+    def follow_using_two_sensors(self, speed: float, Kp: float, Ki: float, Kd: float):
+        robot = self.get_robot()
+        drive_base = robot.get_drive_base()
+        left_motor = robot.get_left_motor()
+        right_motor = robot.get_right_motor()
+        color_sensor = self.get_color_sensor()
+        threshold = self.get_threshold()
+        max_speed = robot.get_max_speed()
+
+        integral = 0.0
+        last_error = 0.0
+        drive_base.reset()
+        while drive_base.distance() <= (distance * 10):
+            reflection = color_sensor.reflection()
+            error = float(reflection) - float(threshold)
+            integral += error
+            derivative = error - last_error
+            turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
+            drive_base.drive(max_speed * (speed / 100.0), turn_rate)
+            last_error = error
+            wait(10)
+        drive_base.stop()
+        left_motor.brake()
+        right_motor.brake()
+
     def follow_p(self, speed: float, Kp: float, distance: float):
         """Follows a line using a proportional controller for a specific distance."""
         robot = self.get_robot()
