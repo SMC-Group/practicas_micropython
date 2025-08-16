@@ -14,5 +14,5 @@ class UmakeMedianMotor(Motor):
         self.run_angle(self.max_speed * (speed / 100), angle)
         self.brake()
     def safely_run_by_seconds(self, speed: float, seconds: float):
-        self.run_time(self.max_speed * (speed / 100), seconds / 1000)
+        self.run_time(self.max_speed * (speed / 100), seconds * 1000)
         self.brake()

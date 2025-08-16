@@ -114,12 +114,13 @@ class LineFollowers:
         right_motor.brake()
 
     # TODO: método no finalizado
-    def follow_using_two_sensors(self, speed: float, Kp: float, Ki: float, Kd: float):
+    def follow_using_two_sensors(self, speed: float, distance: float, kp: float = 1.5, ki: float = 0.1, kd: float = 0.5):
         robot = self.get_robot()
         drive_base = robot.get_drive_base()
         left_motor = robot.get_left_motor()
         right_motor = robot.get_right_motor()
         color_sensor = self.get_color_sensor()
+        second_sensor = self.get_second_color_sensor()
         threshold = self.get_threshold()
         max_speed = robot.get_max_speed()
 
@@ -127,18 +128,28 @@ class LineFollowers:
         last_error = 0.0
         drive_base.reset()
         while drive_base.distance() <= (distance * 10):
-            reflection = color_sensor.reflection()
-            error = float(reflection) - float(threshold)
+            left_reflection = color_sensor.reflection()
+            right_reflection = second_sensor.reflection()
+
+            # Calcula el error (diferencia entre sensores, normalizado)
+            error = (right_reflection - left_reflection) / threshold  # Ajusta según tu setup (línea oscura/clara)
             integral += error
             derivative = error - last_error
-            turn_rate = (Kp * error) + (Ki * integral) + (Kd * derivative)
-            drive_base.drive(max_speed * (speed / 100.0), turn_rate)
+            turn_rate = (kp * error) + (ki * integral) + (kd * derivative)
+
+            # Avanza con velocidad base y aplica giro PID
+            drive_base.drive(max_speed * (speed / 100), turn_rate)
+
+            # Condición de parada si ambos detectan oscuro
+            if left_reflection < threshold and right_reflection < threshold:
+                drive_base.stop()
+                break
+
             last_error = error
-            wait(10)
+            wait(10)  # Pequeña espera para estabilidad
         drive_base.stop()
         left_motor.brake()
         right_motor.brake()
-
     def follow_p(self, speed: float, Kp: float, distance: float):
         """Follows a line using a proportional controller for a specific distance."""
         robot = self.get_robot()
