@@ -8,14 +8,14 @@ TurnRight = 1
 
 # Robot()
 class Robot:
-    def __init__(self, left_motor: Motor, right_motor: Motor, wheel_diameter: float, axle_track: float, degrees_error: float = 0) -> None:
+    def __init__(self, left_motor: Motor, right_motor: Motor, wheel_diameter: float, axle_track: float) -> None:
         self.drive_base = DriveBase(left_motor, right_motor, wheel_diameter, axle_track)
         self.left_motor = left_motor
         self.right_motor = right_motor
         self.max_speed = (1050 / 360) * (3.1416 * wheel_diameter)
         self.axle_track = axle_track
         self.wheel_diameter = wheel_diameter
-        self.degrees_error = degrees_error
+        self.degrees_error = 0
     def rotate(self, angle: float, speed: float = None, acceleration: float = None) -> None:
         drive_base = self.get_drive_base()
         left_motor = self.get_left_motor()

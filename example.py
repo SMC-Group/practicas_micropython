@@ -3,10 +3,11 @@ from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import ColorSensor, Motor
 from pybricks.parameters import Port, Direction, Button
 from pybricks.tools import wait
-from umake.umake_robot import Robot, TurnLeft, TurnRight
+from umake.umake_robot import Robot, TurnLeft
 from umake.median_motor import UmakeMedianMotor
 from umake.line_followers import LineFollowers, LineSideLeft, LineSideRight
 
+wait(200)
 WHEEL_DIAMETER = 62
 motor = Motor(Port.B, Direction.COUNTERCLOCKWISE)
 second_motor = Motor(Port.C)
@@ -35,7 +36,7 @@ def banderas():
     robot.run_cm(80, 30)
     robot.rotate(-90, 50)
     robot.run_cm(80, 46)
-    medium_motor.safely_run_angle(-100, 850)
+    medium_motor.safely_run_angle(-100, 870)
     medium_motor.reset_angle(0)
     wait(150)
     medium_motor.safely_run_angle(100, 500)
@@ -52,7 +53,7 @@ def segunda_funcion_banderas():
     robot.run_cm(50, 2)
     robot.rotate(90, 80)
     robot.run_cm(50, 2)
-    medium_motor.safely_run_angle(-80, 250)
+    medium_motor.safely_run_angle(-80, 270)
     robot.rotate(-45, 50)
     robot.rotate(-45, 50)
     robot.run_by_seconds(-80, 1)
@@ -63,17 +64,22 @@ def segunda_funcion_banderas():
     robot.run_by_seconds(-80, 2)
 
 def AB():
-    robot.run_cm(80, 19)
+    robot.run_cm(80, 16)
     robot.turn(92, 80, TurnLeft)
-    medium_motor.safely_run_by_seconds(-80, 0.5)
-    robot.run_cm(85, 28)
-    robot.turn(-25, 90, TurnRight)
-    robot.turn(25, 90, TurnRight)
-    robot.run_cm(80, 50)
-    robot.rotate(-90, 80)
+    robot.rotate(-182, 80)
+    medium_motor.safely_run_by_seconds(-80, 0.75)
+    robot.run_cm(90, -75)
+    robot.turn(50, 90, TurnLeft)
+    robot.turn(-50, 90, TurnLeft)
+    robot.rotate(90, 80)
+    robot.run_by_seconds(-80, 1.3)
+    # robot.run_cm(85, f28)
+    # robot.turn(-25, 90, TurnRight)
+    # robot.turn(25, 90, TurnRight)
+    # robot.run_cm(80, 50)
+    # robot.rotate(-90, 80)
 
 def primera_antena():
-    robot.run_by_seconds(-80, 1)
     medium_motor.safely_run_by_seconds(100, 2)
     robot.run_cm(80, 12.5)
     robot.rotate(90, 80)
@@ -130,11 +136,11 @@ def segunda_funcion_cubo():
     robot.run_cm(80, 55)
 
 wait_until_button_pressed()
-# banderas()
-# segunda_funcion_banderas()
-# AB()
-# primera_antena()
-# deslizar_roja()
-# antena_amarilla()
-# cubo()
+banderas()
+segunda_funcion_banderas()
+AB()
+primera_antena()
+deslizar_roja()
+antena_amarilla()
+cubo()
 segunda_funcion_cubo()
